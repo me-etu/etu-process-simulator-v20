@@ -1,0 +1,10 @@
+C:\Users\User\Desktop\Abgaswäscher\PlcSimAdvancedFramework\obj\Debug\PlcSimAdvancedFramework.csproj.AssemblyReference.cache
+C:\Users\User\Desktop\Abgaswäscher\PlcSimAdvancedFramework\obj\Debug\PlcSimAdvancedFramework.csproj.SuggestedBindingRedirects.cache
+C:\Users\User\Desktop\Abgaswäscher\PlcSimAdvancedFramework\obj\Debug\Views\MainWindow.g.cs
+C:\Users\User\Desktop\Abgaswäscher\PlcSimAdvancedFramework\obj\Debug\App.g.cs
+C:\Users\User\Desktop\Abgaswäscher\PlcSimAdvancedFramework\obj\Debug\PlcSimAdvancedFramework_MarkupCompile.cache
+C:\Users\User\Desktop\Abgaswäscher\PlcSimAdvancedFramework\obj\Debug\PlcSimAdvancedFramework_MarkupCompile.lref
+D:\H2O\H2O\Simulator Code\Vacudest\PlcSimAdvancedFramework\obj\Debug\Views\MainWindow.g.cs
+D:\H2O\H2O\Simulator Code\Vacudest\PlcSimAdvancedFramework\obj\Debug\App.g.cs
+D:\H2O\H2O\Simulator Code\Vacudest\PlcSimAdvancedFramework\obj\Debug\PlcSimAdvancedFramework_MarkupCompile.cache
+D:\H2O\H2O\Simulator Code\Vacudest\PlcSimAdvancedFramework\obj\Debug\PlcSimAdvancedFramework_MarkupCompile.lref

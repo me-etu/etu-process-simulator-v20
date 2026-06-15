@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SimulationProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>Sample Scrubber Project</Name>
+  <Tags>
+    <Tag>
+      <DisplayName>Emergency Stop OK</DisplayName>
+      <Address>E_NotAus_OK</Address>
+      <DataType>Bool</DataType>
+      <ManualValue>true</ManualValue>
+      <ManualEnabled>true</ManualEnabled>
+      <Description>Digital permissive input.</Description>
+    </Tag>
+    <Tag>
+      <DisplayName>Pressure Switch</DisplayName>
+      <Address>IN_PISL3150_16</Address>
+      <DataType>Bool</DataType>
+      <ManualValue>false</ManualValue>
+      <ManualEnabled>true</ManualEnabled>
+      <Description>Example digital field input.</Description>
+    </Tag>
+    <Tag>
+      <DisplayName>Flow Controller Input</DisplayName>
+      <Address>IN_FIC3150_41</Address>
+      <DataType>Int16</DataType>
+      <ManualValue>12000</ManualValue>
+      <ManualEnabled>true</ManualEnabled>
+      <Description>Example raw analog input.</Description>
+    </Tag>
+    <Tag>
+      <DisplayName>Motor Ready Feedback</DisplayName>
+      <Address>db5000TA1_VLT.Ready</Address>
+      <DataType>Bool</DataType>
+      <ManualValue>true</ManualValue>
+      <ManualEnabled>true</ManualEnabled>
+      <Description>Example DB feedback signal.</Description>
+    </Tag>
+    <Tag>
+      <DisplayName>Controller Setpoint</DisplayName>
+      <Address>Gasw�scher.TIC3152-22-R.QSP</Address>
+      <DataType>Float</DataType>
+      <ManualValue>42.5</ManualValue>
+      <ManualEnabled>true</ManualEnabled>
+      <Description>Example floating-point process value.</Description>
+    </Tag>
+  </Tags>
+</SimulationProject>
