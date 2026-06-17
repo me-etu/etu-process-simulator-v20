@@ -1,0 +1,4 @@
+interface:
+  display_name: "Warm Up"
+  short_description: "Read repo context before editing"
+  default_prompt: "Use $warm-up to read repo guidance, inspect Git status, and summarize readiness before implementation."

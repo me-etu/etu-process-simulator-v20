@@ -10,4 +10,5 @@ Internal tracker for meaningful simulator changes, setup notes, and maintenance 
 - Added `Specs/` as the tracked home for PRD-style implementation handoff specs.
 - Added project-local `create-spec` Codex skill for drafting handoff-ready specs.
 - Added project-local `execute-spec` Codex skill for implementing specs with validation and acceptance-criteria reporting.
+- Added project-local `warm-up` Codex skill for read-only session startup context.
 

@@ -34,6 +34,7 @@
 ## Codex Skills
 
 - Project-local Codex skills can live under `.codex/skills/<skill-name>/` when the workflow should travel with this repo; keep each skill minimal with `SKILL.md` and optional `agents/openai.yaml`.
+- Use `warm-up` as the read-only startup ritual for new sessions: read repo guidance, inspect Git status, summarize current state, and stop before edits.
 
 ## Local Tooling
 
