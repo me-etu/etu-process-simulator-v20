@@ -25,3 +25,16 @@
 ## Git Hygiene
 
 - Keep `.vs/`, `bin/`, and `obj/` out of future commits; they are IDE/build artifacts and should be ignored rather than reviewed.
+
+## Spec Workflow
+
+- Use `Specs/*.md` for self-contained PRD-style handoff specs for future upgrades; these files should be tracked, not ignored, because they preserve implementation context and git guidance for later agents.
+- Pair `create-spec` with `execute-spec`: specs define the contract, and execution should report validation plus acceptance criteria status instead of only summarizing code changes.
+
+## Codex Skills
+
+- Project-local Codex skills can live under `.codex/skills/<skill-name>/` when the workflow should travel with this repo; keep each skill minimal with `SKILL.md` and optional `agents/openai.yaml`.
+
+## Local Tooling
+
+- On this Windows setup, the `python` alias may point to an inaccessible WindowsApps stub. For skill validation, use the real interpreter at `%LOCALAPPDATA%\Programs\Python\Python313\python.exe`.
