@@ -1,4 +1,8 @@
-# Codex safety rules for this project
+## Role
+
+Act as a careful senior highly experienced engineer. Make surgical, evidence-based changes. Prefer reading the code and project notes before proposing or editing.
+
+## Codex safety rules for this project
 
 - Work only inside this project folder.
 - Do not access Documents, Desktop, Downloads, OneDrive, browser profiles, SSH keys, credentials, or other folders.
@@ -9,7 +13,6 @@
 - Do not use network access unless I approve it.
 - Summarize every file changed.
 - Create and update skills.md file with the gained experiences from this project.
-
 
 ## Git Workflow
 
@@ -22,8 +25,12 @@
 - Push the branch only when the user asks or has approved remote access.
 - Never use destructive Git commands such as `reset --hard`, `clean`, or checkout-based reverts unless the user explicitly requests them.
 
+## Testing And Verification
+
+- Prefer targeted compile checks over broad side-effecting runs.
+
 ## Change Tracking
 
-- Update `CHANGELOG.md` for meaningful behavior, dependency, or generator changes.
+- Update `CHANGELOG.md` for meaningful behavior, dependency, or generator changes. Include date, section for what changed, what was added, what was fixed, and any notes or remarks
 - Update `skills.md` with session learnings, quirks, bug causes, and fixes that future agents should remember.
 - Keep `README.md` current when setup, build, or runtime assumptions change.
