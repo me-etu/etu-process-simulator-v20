@@ -2,12 +2,14 @@ using Siemens.Simatic.Simulation.Runtime;
 using System.Collections.Generic;
 using System.Windows;
 using System.Xml.Linq;
+using CoSimulationPlcSimAdv.Models;
 
 namespace CoSimulationPlcSimAdv
 {
     public class Simulation
     {
         private readonly HashSet<string> loggedTagFailures = new HashSet<string>();
+        private readonly List<object> configuredDevices = new List<object>();
 
         public CoSimulationPlcSimAdv.App App {get; set; }
 
@@ -15,6 +17,60 @@ namespace CoSimulationPlcSimAdv
         {
             App = Application.Current as CoSimulationPlcSimAdv.App;
             App.Loop += OnLoop;
+            LoadConfiguredDevices();
+        }
+
+        private void LoadConfiguredDevices()
+        {
+            var units = DeviceUiConfigLoader.LoadUnitConfigs();
+            PlcIo.LoadMarkerFallbacks(DeviceUiConfigLoader.GetActiveMarkerFallbacks(units));
+
+            foreach (var unit in units)
+            {
+                foreach (var analog in unit.Config.analogInputs ?? new List<DeviceUiAnalogInput>())
+                {
+                    configuredDevices.Add(new Analog(
+                        analog.plcTag,
+                        analog.minEngineeringValue,
+                        analog.maxEngineeringValue,
+                        analog.travelTimeSeconds,
+                        actValueManual: false,
+                        uiId: analog.uiId));
+                }
+
+                foreach (var digital in unit.Config.digitalInputs ?? new List<DeviceUiDigitalInput>())
+                {
+                    configuredDevices.Add(new Digital(
+                        digital.plcTag,
+                        digital.defaultValue,
+                        !string.IsNullOrWhiteSpace(digital.qualityBitTag),
+                        digital.normallyClosed,
+                        digital.uiId,
+                        digital.qualityBitTag));
+                }
+
+                foreach (var valve in unit.Config.valves ?? new List<DeviceUiValve>())
+                {
+                    if (DeviceUiConfigLoader.ShouldSkipValve(unit, valve))
+                    {
+                        continue;
+                    }
+
+                    configuredDevices.Add(new Valve(
+                        valve.uiId,
+                        valve.normallyClosed,
+                        "_QB",
+                        valve.travelTimeMs,
+                        true,
+                        false,
+                        uiId: valve.uiId,
+                        ctrlTag: valve.controlTag,
+                        fbOpenTag: valve.feedbackOpenTag,
+                        fbCloseTag: valve.feedbackCloseTag,
+                        fbOpenQualityTag: valve.feedbackOpenQualityBitTag,
+                        fbCloseQualityTag: valve.feedbackCloseQualityBitTag));
+                }
+            }
         }
 
         public void OnLoop(IInstance instance, bool init = false)

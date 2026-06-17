@@ -11,15 +11,17 @@ namespace CoSimulationPlcSimAdv
         public CoSimulationPlcSimAdv.App App { get; set; }
         public Simulation Simulation { get; set; }
 
-        public Valve(string tagName, bool nc = true, string qualityBitName = "_QB", int time = 4000, bool qualityBit = true, bool mv = false, string nameCtrl = "CTRL", string nameFbOpen = "FB_OPN", string nameFbClose = "FB_CLS")
+        public Valve(string tagName, bool nc = true, string qualityBitName = "_QB", int time = 4000, bool qualityBit = true, bool mv = false, string nameCtrl = "CTRL", string nameFbOpen = "FB_OPN", string nameFbClose = "FB_CLS", string uiId = null, string ctrlTag = null, string fbOpenTag = null, string fbCloseTag = null, string fbOpenQualityTag = null, string fbCloseQualityTag = null)
         {
             Closed = false;
             Initialized = false;
 
             var normalizedTagName = tagName.Replace("-", "_");
-            NameCtrl = nameCtrl + "_" + normalizedTagName;
-            NameFbOpen = nameFbOpen + "_" + normalizedTagName;
-            NameFbClose = nameFbClose + "_" + normalizedTagName;
+            NameCtrl = string.IsNullOrWhiteSpace(ctrlTag) ? nameCtrl + "_" + normalizedTagName : ctrlTag;
+            NameFbOpen = string.IsNullOrWhiteSpace(fbOpenTag) ? nameFbOpen + "_" + normalizedTagName : fbOpenTag;
+            NameFbClose = string.IsNullOrWhiteSpace(fbCloseTag) ? nameFbClose + "_" + normalizedTagName : fbCloseTag;
+            NameFbOpenQuality = string.IsNullOrWhiteSpace(fbOpenQualityTag) ? NameFbOpen + qualityBitName : fbOpenQualityTag;
+            NameFbCloseQuality = string.IsNullOrWhiteSpace(fbCloseQualityTag) ? NameFbClose + qualityBitName : fbCloseQualityTag;
             NC = nc;
             Opened = false;
             Ctrl = false;
@@ -34,7 +36,7 @@ namespace CoSimulationPlcSimAdv
 
             var wnd = App.MainWindow as CoSimulationPlcSimAdv.Views.MainWindow;
             var grid = wnd.Content as Grid;
-            var name = normalizedTagName;
+            var name = string.IsNullOrWhiteSpace(uiId) ? normalizedTagName : uiId;
 
             SimFbButton = grid.FindName(name + "_SimFbButton") as ToggleButton;
             if (SimFbButton != null) SimFbButton.Click += OnSimFbButtonClick;
@@ -66,8 +68,8 @@ namespace CoSimulationPlcSimAdv
 
             if (SimFb)
             {
-                PlcIo.TryWriteBool(instance, NameFbOpen + QualityBitName, !ErrorFbOpen, App, "Valve manual open quality write");
-                PlcIo.TryWriteBool(instance, NameFbClose + QualityBitName, !ErrorFbClose, App, "Valve manual close quality write");
+                PlcIo.TryWriteBool(instance, NameFbOpenQuality, !ErrorFbOpen, App, "Valve manual open quality write");
+                PlcIo.TryWriteBool(instance, NameFbCloseQuality, !ErrorFbClose, App, "Valve manual close quality write");
                 PlcIo.TryWriteBool(instance, NameFbOpen, SimFbOpen, App, "Valve manual open feedback write");
                 PlcIo.TryWriteBool(instance, NameFbClose, SimFbClose, App, "Valve manual close feedback write");
 
@@ -116,11 +118,11 @@ namespace CoSimulationPlcSimAdv
                 {
                     if (NameFbClose != "")
                     {
-                        PlcIo.TryWriteBool(instance, NameFbClose + QualityBitName, true, App, "Valve close quality init write");
+                        PlcIo.TryWriteBool(instance, NameFbCloseQuality, true, App, "Valve close quality init write");
                     }
                     if (NameFbOpen != "")
                     {
-                        PlcIo.TryWriteBool(instance, NameFbOpen + QualityBitName, true, App, "Valve open quality init write");
+                        PlcIo.TryWriteBool(instance, NameFbOpenQuality, true, App, "Valve open quality init write");
                     }
                 }
                 Initialized = true;
@@ -148,8 +150,8 @@ namespace CoSimulationPlcSimAdv
             }
             else
             {
-                PlcIo.TryWriteBool(instance, NameFbOpen + QualityBitName, !ErrorFbOpen, App, "Valve open quality write");
-                PlcIo.TryWriteBool(instance, NameFbClose + QualityBitName, !ErrorFbClose, App, "Valve close quality write");
+                PlcIo.TryWriteBool(instance, NameFbOpenQuality, !ErrorFbOpen, App, "Valve open quality write");
+                PlcIo.TryWriteBool(instance, NameFbCloseQuality, !ErrorFbClose, App, "Valve close quality write");
 
                 TimeChanged = 0;
                 AfterSim = true;
@@ -207,6 +209,8 @@ namespace CoSimulationPlcSimAdv
         public bool Initialized;
         public String NameFbClose;
         public String NameFbOpen;
+        public String NameFbCloseQuality;
+        public String NameFbOpenQuality;
         public String NameCtrl;
         public String QualityBitName;
         public bool NC;

@@ -13,7 +13,7 @@ namespace CoSimulationPlcSimAdv
         public CoSimulationPlcSimAdv.App App { get; set; }
         public Simulation Simulation { get; set; }
 
-        public Analog(string actValueName, float minValue = 0, float maxValue = 500, int time_s = 10, float setpoint = 0, float offset = 0, string setpointName = "", bool spIsInt = false, short minDig = 0, int maxDig = 27648, short actValue = 32767, bool actValueManual = false)
+        public Analog(string actValueName, float minValue = 0, float maxValue = 500, int time_s = 10, float setpoint = 0, float offset = 0, string setpointName = "", bool spIsInt = false, short minDig = 0, int maxDig = 27648, short actValue = 32767, bool actValueManual = false, string uiId = null)
         {
             ActValueName = actValueName;
             MSetpoint = 0;
@@ -38,7 +38,7 @@ namespace CoSimulationPlcSimAdv
             
             var wnd = App.MainWindow as CoSimulationPlcSimAdv.Views.MainWindow;
             var grid = wnd.Content as Grid;
-            var name = actValueName.Replace("IN_", "").Replace("-", "_");
+            var name = string.IsNullOrWhiteSpace(uiId) ? actValueName.Replace("IN_", "").Replace("-", "_") : uiId;
 
             SetpointEdit = grid.FindName(name + "_SetpointEdit") as TextBox;
             if (SetpointEdit != null)

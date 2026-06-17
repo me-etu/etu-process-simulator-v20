@@ -1,0 +1,89 @@
+{
+  "description": "Template for adding simulator UI devices. Keep plcTag values exactly as exported from TIA Portal. uiId must be WPF-safe: use letters, digits, and underscores only.",
+  "analogInputs": [
+    {
+      "uiId": "LC_4_20_8_4",
+      "displayName": "LC 4.20.8.4",
+      "plcTag": "IN_LC-4-20-8-4",
+      "dataType": "Int16",
+      "minEngineeringValue": 0,
+      "maxEngineeringValue": 100,
+      "minRawValue": 0,
+      "maxRawValue": 27648,
+      "defaultRawValue": 0,
+      "travelTimeSeconds": 10,
+      "qualityBitTag": "IN_LC-4-20-8-4_QB",
+      "uiControls": {
+        "actualValueButton": "LC_4_20_8_4_ActValueButton",
+        "setpointButton": "LC_4_20_8_4_SetpointButton",
+        "setpointEdit": "LC_4_20_8_4_SetpointEdit"
+      }
+    }
+  ],
+  "digitalInputs": [
+    {
+      "uiId": "LSA_4_1_8_3",
+      "displayName": "LSA 4.1.8.3",
+      "plcTag": "IN_LSA-4-1-8-3",
+      "dataType": "Bool",
+      "normallyClosed": true,
+      "defaultValue": false,
+      "qualityBitTag": "IN_LSA-4-1-8-3_QB",
+      "uiControls": {
+        "actualValueButton": "LSA_4_1_8_3_ActValueButton"
+      }
+    }
+  ],
+  "valves": [
+    {
+      "uiId": "Q21",
+      "displayName": "Q21",
+      "normallyClosed": true,
+      "travelTimeMs": 4000,
+      "controlTag": "CTRL_Q21",
+      "feedbackOpenTag": "FB_OPN_Q21",
+      "feedbackCloseTag": "FB_CLS_Q21",
+      "feedbackOpenQualityBitTag": "FB_OPN_Q21_QB",
+      "feedbackCloseQualityBitTag": "FB_CLS_Q21_QB",
+      "uiControls": {
+        "simulateFeedbackButton": "Q21_SimFbButton",
+        "forceOpenButton": "Q21_SimFbOpenButton",
+        "forceCloseButton": "Q21_SimFbCloseButton",
+        "openQualityErrorButton": "Q21_QB_ErrorFbOpenButton",
+        "closeQualityErrorButton": "Q21_QB_ErrorFbCloseButton",
+        "manualControlButton": "Q21_MVCtrlButton"
+      }
+    }
+  ],
+  "actuators": [
+    {
+      "uiId": "G21",
+      "displayName": "G21",
+      "controlTag": "CTRL_G21",
+      "feedbackOnTag": "FB_ON_G21",
+      "feedbackQualityBitTag": "FB_ON_G21_QB",
+      "uiControls": {
+        "manualFeedbackButton": "G21_SimFbButton",
+        "forceOnButton": "G21_SimFbOnButton"
+      }
+    }
+  ],
+  "markerFallbacks": [
+    {
+      "plcTag": "IN_LSA-4-1-8-3",
+      "markerAddress": "%M1000.0",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "IN_LC-4-20-8-4",
+      "markerAddress": "%MW2000",
+      "dataType": "Int16"
+    }
+  ],
+  "notes": [
+    "Do not change plcTag spelling, case, hyphens, or underscores unless the PLC export changes.",
+    "Use uiId only for WPF control names. A tag like IN_LC-4-20-8-4 usually maps to UI controls starting with LC_4_20_8_4.",
+    "For DB variables, put the symbolic DB path in plcTag, for example db5000TA1_VLT.Ready, and keep dataType aligned with the PLC variable type.",
+    "markerFallbacks are optional and should only be filled when a symbolic tag needs a known marker-area backup."
+  ]
+}
