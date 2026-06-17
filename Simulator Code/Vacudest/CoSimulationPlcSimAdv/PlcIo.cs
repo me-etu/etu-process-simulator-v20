@@ -97,7 +97,6 @@ namespace CoSimulationPlcSimAdv
             { "IN_TI-5-10-31-1", Marker("%MW2010") },
             { "IN_TI-5-20-31-1", Marker("%MW2012") },
             { "IN_FI-8-1-31-1", Marker("%MW2014") },
-
             { "FB_OPN_Q21", Marker("%M500.0") },
             { "FB_OPN_Q21_QB", Marker("%M500.1") },
             { "FB_CLS_Q21", Marker("%M500.2") },
@@ -113,12 +112,27 @@ namespace CoSimulationPlcSimAdv
             { "FB_CLS_Q41", Marker("%M501.5") },
             { "FB_CLS_Q41_QB", Marker("%M501.6") },
             { "CTRL_Q41", Marker("%M502.0") },
-
             { "CTRL_G21", Marker("%M2500.0") },
             { "FB_ON_G21", Marker("%M2500.1") },
             { "CTRL_E21", Marker("%M2500.2") },
             { "FB_ON_E21", Marker("%M2500.3") },
         };
+
+        public static void LoadMarkerFallbacks(IEnumerable<CoSimulationPlcSimAdv.Models.DeviceUiMarkerFallback> markerFallbacks)
+        {
+            foreach (var markerFallback in markerFallbacks)
+            {
+                if (markerFallback == null
+                    || string.IsNullOrWhiteSpace(markerFallback.plcTag)
+                    || string.IsNullOrWhiteSpace(markerFallback.markerAddress)
+                    || Addresses.ContainsKey(markerFallback.plcTag))
+                {
+                    continue;
+                }
+
+                Addresses[markerFallback.plcTag] = Marker(markerFallback.markerAddress);
+            }
+        }
 
         public static bool TryWriteBool(IInstance instance, string tagName, bool value, CoSimulationPlcSimAdv.App app, string context)
         {

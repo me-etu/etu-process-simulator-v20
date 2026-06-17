@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
@@ -214,7 +215,9 @@ namespace CoSimulationPlcSimAdv.ViewModels
 
         public void RunDiagnosticIoTest()
         {
-            var digitalTags = new[]
+            var units = DeviceUiConfigLoader.LoadUnitConfigs();
+
+            var digitalTags = new List<string>
             {
                 "IN_LSA-4-1-8-3",
                 "IN_LSA-4-1-8-3_QB",
@@ -258,8 +261,9 @@ namespace CoSimulationPlcSimAdv.ViewModels
                 "FB_CLS_Q41",
                 "FB_CLS_Q41_QB"
             };
+            digitalTags.AddRange(DeviceUiConfigLoader.GetConfiguredBoolDiagnosticTags(units));
 
-            var analogTags = new[]
+            var analogTags = new List<string>
             {
                 "IN_LC-4-20-8-4",
                 "IN_QC-9-1-8-4",
@@ -270,13 +274,14 @@ namespace CoSimulationPlcSimAdv.ViewModels
                 "IN_TI-5-20-31-1",
                 "IN_FI-8-1-31-1"
             };
+            analogTags.AddRange(DeviceUiConfigLoader.GetConfiguredInt16DiagnosticTags(units));
 
             var report = new StringBuilder();
             report.AppendLine("Current-project IO audit:");
             report.AppendLine();
             report.AppendLine("Digital/Bool tags:");
 
-            foreach (var tag in digitalTags)
+            foreach (var tag in digitalTags.Where(tag => !string.IsNullOrWhiteSpace(tag)).Distinct())
             {
                 try
                 {
@@ -293,7 +298,7 @@ namespace CoSimulationPlcSimAdv.ViewModels
             report.AppendLine();
             report.AppendLine("Analog/Int tags:");
 
-            foreach (var tag in analogTags)
+            foreach (var tag in analogTags.Where(tag => !string.IsNullOrWhiteSpace(tag)).Distinct())
             {
                 try
                 {

@@ -12,11 +12,12 @@ namespace CoSimulationPlcSimAdv
         public CoSimulationPlcSimAdv.App App { get; set; }
         public Simulation Simulation { get; set; }
 
-        public Digital(String actValueName = "", bool value = false, bool qualityBit = true, bool nc = true)
+        public Digital(String actValueName = "", bool value = false, bool qualityBit = true, bool nc = true, string uiId = null, string qualityBitTag = null)
         {
             Name = actValueName;
             Value = value;
             QualityBit = qualityBit;
+            QualityBitName = qualityBitTag;
             NC = nc;
             ActValueManual = false;
             MValue = false;
@@ -27,7 +28,7 @@ namespace CoSimulationPlcSimAdv
 
             var wnd = App.MainWindow as CoSimulationPlcSimAdv.Views.MainWindow;
             var grid = wnd.Content as Grid;
-            var name = actValueName.Replace("IN_", "").Replace("E_", "").Replace("-", "_");
+            var name = string.IsNullOrWhiteSpace(uiId) ? actValueName.Replace("IN_", "").Replace("E_", "").Replace("-", "_") : uiId;
 
             ActValueButton = grid.FindName(name + "_ActValueButton") as ToggleButton;
             if (ActValueButton != null) ActValueButton.Click += OnActValueButtonClick;
@@ -41,7 +42,7 @@ namespace CoSimulationPlcSimAdv
 
             if (QualityBit)
             {
-                PlcIo.TryWriteBool(instance, Name + "_QB", true, App, "Digital quality write");
+                PlcIo.TryWriteBool(instance, string.IsNullOrWhiteSpace(QualityBitName) ? Name + "_QB" : QualityBitName, true, App, "Digital quality write");
             }
             Initialized = true;
 
@@ -75,6 +76,7 @@ namespace CoSimulationPlcSimAdv
         }
 
         public string Name;
+        public string QualityBitName;
         public bool Value;
         public bool QualityBit;
         public bool Initialized;

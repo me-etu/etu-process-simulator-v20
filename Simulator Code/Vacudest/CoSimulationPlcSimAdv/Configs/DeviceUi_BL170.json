@@ -1,0 +1,193 @@
+{
+  "description": "BL170 simulator UI devices copied from DeviceUiTemplate.json. Keep plcTag values exactly as exported from TIA Portal. uiId values are WPF-safe.",
+  "analogInputs": [
+    {
+      "uiId": "QC_B24",
+      "displayName": "QC-B24",
+      "plcTag": "IN_QC-B24",
+      "dataType": "Int16",
+      "minEngineeringValue": 0,
+      "maxEngineeringValue": 500,
+      "minRawValue": 0,
+      "maxRawValue": 27648,
+      "defaultRawValue": 0,
+      "travelTimeSeconds": 10,
+      "uiControls": {
+        "actualValueButton": "QC_B24_ActValueButton",
+        "setpointButton": "QC_B24_SetpointButton",
+        "setpointEdit": "QC_B24_SetpointEdit"
+      }
+    },
+    {
+      "uiId": "QC_B14",
+      "displayName": "QC-B14",
+      "plcTag": "IN_QC-B14",
+      "dataType": "Int16",
+      "minEngineeringValue": 0,
+      "maxEngineeringValue": 500,
+      "minRawValue": 0,
+      "maxRawValue": 27648,
+      "defaultRawValue": 0,
+      "travelTimeSeconds": 10,
+      "uiControls": {
+        "actualValueButton": "QC_B14_ActValueButton",
+        "setpointButton": "QC_B14_SetpointButton",
+        "setpointEdit": "QC_B14_SetpointEdit"
+      }
+    }
+  ],
+  "digitalInputs": [
+    {
+      "uiId": "BL171_B13",
+      "displayName": "BL171-B13",
+      "plcTag": "IN_BL171-B13",
+      "dataType": "Bool",
+      "normallyClosed": false,
+      "defaultValue": false,
+      "qualityBitTag": "IN_BL171-B13_QB",
+      "uiControls": {
+        "actualValueButton": "BL171_B13_ActValueButton"
+      }
+    },
+    {
+      "uiId": "BL172_B13",
+      "displayName": "BL172-B13",
+      "plcTag": "IN_BL172-B13",
+      "dataType": "Bool",
+      "normallyClosed": false,
+      "defaultValue": false,
+      "qualityBitTag": "IN_BL172-B13_QB",
+      "uiControls": {
+        "actualValueButton": "BL172_B13_ActValueButton"
+      }
+    }
+  ],
+  "valves": [
+    {
+      "uiId": "BL170_Q11",
+      "displayName": "BL170 Q11",
+      "normallyClosed": true,
+      "travelTimeMs": 4000,
+      "controlTag": "CTRL_BL170_Q11",
+      "feedbackOpenTag": "FB_OPN_BL170_Q11",
+      "feedbackCloseTag": "FB_CLS_BL170_Q11",
+      "feedbackOpenQualityBitTag": "FB_OPN_BL170_Q11_QB",
+      "feedbackCloseQualityBitTag": "FB_CLS_BL170_Q11_QB",
+      "uiControls": {
+        "simulateFeedbackButton": "BL170_Q11_SimFbButton",
+        "forceOpenButton": "BL170_Q11_SimFbOpenButton",
+        "forceCloseButton": "BL170_Q11_SimFbCloseButton",
+        "openQualityErrorButton": "BL170_Q11_QB_ErrorFbOpenButton",
+        "closeQualityErrorButton": "BL170_Q11_QB_ErrorFbCloseButton",
+        "manualControlButton": "BL170_Q11_MVCtrlButton"
+      }
+    },
+    {
+      "uiId": "Q21",
+      "displayName": "Q21",
+      "normallyClosed": true,
+      "travelTimeMs": 4000,
+      "controlTag": "CTRL_Q21",
+      "feedbackOpenTag": "FB_OPN_Q21",
+      "feedbackCloseTag": "FB_CLS_Q21",
+      "feedbackOpenQualityBitTag": "FB_OPN_Q21_QB",
+      "feedbackCloseQualityBitTag": "FB_CLS_Q21_QB",
+      "uiControls": {
+        "simulateFeedbackButton": "Q21_SimFbButton",
+        "forceOpenButton": "Q21_SimFbOpenButton",
+        "forceCloseButton": "Q21_SimFbCloseButton",
+        "openQualityErrorButton": "Q21_QB_ErrorFbOpenButton",
+        "closeQualityErrorButton": "Q21_QB_ErrorFbCloseButton",
+        "manualControlButton": "Q21_MVCtrlButton"
+      }
+    }
+  ],
+  "actuators": [],
+  "markerFallbacks": [
+    {
+      "plcTag": "IN_BL171-B13",
+      "markerAddress": "%M1400.0",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "IN_BL171-B13_QB",
+      "markerAddress": "%M1400.1",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "IN_BL172-B13",
+      "markerAddress": "%M1400.2",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "IN_BL172-B13_QB",
+      "markerAddress": "%M1400.3",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "IN_QC-B24",
+      "markerAddress": "%MW1410",
+      "dataType": "Int16"
+    },
+    {
+      "plcTag": "FB_OPN_Q21_QB",
+      "markerAddress": "%M1410.0",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "FB_OPN_Q21",
+      "markerAddress": "%M1410.1",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "FB_OPN_BL170_Q11",
+      "markerAddress": "%M1410.2",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "FB_OPN_BL170_Q11_QB",
+      "markerAddress": "%M1410.3",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "FB_CLS_Q21",
+      "markerAddress": "%M1410.4",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "FB_CLS_BL170_Q11",
+      "markerAddress": "%M1410.5",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "FB_CLS_Q21_QB",
+      "markerAddress": "%M1410.6",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "FB_CLS_BL170_Q11_QB",
+      "markerAddress": "%M1410.7",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "CTRL_BL170_Q11",
+      "markerAddress": "%M1411.0",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "CTRL_Q21",
+      "markerAddress": "%M1411.1",
+      "dataType": "Bool"
+    },
+    {
+      "plcTag": "IN_QC-B14",
+      "markerAddress": "%MW1412",
+      "dataType": "Int16"
+    }
+  ],
+  "notes": [
+    "Generated from the active BL170 declarations in etu-process-generator-TiAv20/Project.cs.",
+    "Marker fallback addresses were copied from the supplied TIA Portal screenshot.",
+    "Analog inputs do not include qualityBitTag entries because the supplied BL170 tag list only shows IN_QC-B24 and IN_QC-B14."
+  ]
+}
