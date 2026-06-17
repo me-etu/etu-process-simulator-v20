@@ -1,0 +1,7 @@
+# Visual Studio workspace state
+.vs/
+
+# Build outputs
+**/bin/
+**/obj/
+
