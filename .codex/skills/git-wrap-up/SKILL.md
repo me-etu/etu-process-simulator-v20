@@ -2,7 +2,6 @@
 name: git-wrap-up
 description: "Finish a completed repo task with safe git hygiene: confirm branch, inspect status and diffs, ensure changelog is updated, stage the right files, create a focused commit, and provide a push command without pushing. Use when the user asks to wrap up, finish the session, prepare a commit, commit the completed work, or produce the final push command after a spec or troubleshooting task."
 ---
-
 # Git Wrap Up
 
 Close a completed task carefully. Treat this as the final gate before a local commit.
@@ -10,15 +9,14 @@ Close a completed task carefully. Treat this as the final gate before a local co
 ## Intake
 
 1. Read `references/AGENTS.md`.
-2. Read `skills.md`.
-3. Inspect:
+2. Inspect:
    - `git status --short --branch`
    - `git diff --stat`
    - `git diff --check`
    - `git diff -- <relevant paths>` as needed
-4. Identify the current branch and whether it matches the task/spec branch.
-5. If the branch is `main`, stop and ask before committing.
-6. Identify unrelated or surprising changes. Do not stage them silently.
+3. Identify the current branch and whether it matches the task/spec branch.
+4. If the branch is `main`, stop and ask before committing.
+5. Identify unrelated or surprising changes. Do not stage them silently.
 
 ## Changelog Gate
 
@@ -83,4 +81,5 @@ Include:
 - validation summary
 - changelog status
 - push command
+- relevant PR comments copy-paste style
 - any remaining uncommitted files, if present
