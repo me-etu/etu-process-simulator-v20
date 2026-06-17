@@ -8,6 +8,7 @@
 - Symbol names must match the PLC export exactly. Do not normalize PLC tag names; only normalize UI identifiers.
 - In default operating mode, `OnSyncPointReached` is only emitted after each cycle if `IsSendSyncEventInDefaultModeEnabled` is set to `true`.
 - `OnOperatingStateChanged` and `OnHardwareConfigChanged` handlers run on separate threads. Stable wrapper events in `PLCInstance` are safer than subscribing the UI directly to an `IInstance` that may be replaced.
+- Long diagnostics such as `TEST IO` should orchestrate from a background task and report WPF progress via the dispatcher, while each PLCSIM read/write still goes through the dedicated `PLCInstance` worker thread.
 
 ## Current Vacudest Tags
 
@@ -21,6 +22,9 @@
 - `Simulator Code/Vacudest/CoSimulationPlcSimAdv/Configs/DeviceUiTemplate.json` is a hand-fillable template for future config-driven UI device definitions.
 - BL170 was integrated surgically from `DeviceUi_BL170.json`: add only BL170-specific devices and leave generic Q21 unchanged unless explicitly requested.
 - For many units, prefer a unit sidebar plus config-generated unit panels over a flat type-first list; register generated WPF control names so existing `FindName(...)` device wiring still works.
+- Commissioning DB imports are intentionally separate from `DeviceUi_*.json`: generated files use `CommissioningDb_*.json`, PLCSIM API write tags use the `dbName.memberName` spelling surfaced by `IInstance.TagInfos`, and Bool/Real writes should not use marker fallback.
+- Before writing imported commissioning DB tags, refresh PLCSIM tags with the DB-specific `UpdateTagList(..., "\"dbName\"")` overload; Siemens documents that the DB filter list itself must start and end with quotes, even though the resulting API-visible tag name is unquoted.
+- Real commissioning DB rows only work when the imported `.db` source and the downloaded PLC DB both declare those members as `Real`; changing the simulator config alone cannot overcome a PLC-side Bool declaration.
 
 ## Git Hygiene
 
@@ -35,6 +39,8 @@
 
 - Project-local Codex skills can live under `.codex/skills/<skill-name>/` when the workflow should travel with this repo; keep each skill minimal with `SKILL.md` and optional `agents/openai.yaml`.
 - Use `warm-up` as the read-only startup ritual for new sessions: read repo guidance, inspect Git status, summarize current state, and stop before edits.
+- Use `update-changelog` to keep `CHANGELOG.md` dated and specific, including relevant files and validation notes instead of generic `Unreleased` bullets.
+- Use `git-wrap-up` as the end-of-task finisher: verify branch/diff/changelog/validation, stage only intended files, commit locally, and provide a push command without pushing.
 
 ## Local Tooling
 

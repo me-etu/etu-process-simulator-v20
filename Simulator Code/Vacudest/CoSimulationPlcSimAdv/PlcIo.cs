@@ -182,6 +182,38 @@ namespace CoSimulationPlcSimAdv
             }
         }
 
+        public static bool TryWriteSymbolicBool(IInstance instance, string tagName, bool value, CoSimulationPlcSimAdv.App app, string context)
+        {
+            try
+            {
+                instance.WriteBool(tagName, value);
+                ClearLogState(tagName);
+                return true;
+            }
+            catch (SimulationRuntimeException ex)
+            {
+                LogOnce(app, LoggedFailures, tagName, $"{context} failed for {tagName}: {ex.Message}");
+                return false;
+            }
+        }
+
+        public static bool TryReadSymbolicBool(IInstance instance, string tagName, out bool value, CoSimulationPlcSimAdv.App app, string context)
+        {
+            value = false;
+
+            try
+            {
+                value = instance.ReadBool(tagName);
+                ClearLogState(tagName);
+                return true;
+            }
+            catch (SimulationRuntimeException ex)
+            {
+                LogOnce(app, LoggedFailures, tagName, $"{context} failed for {tagName}: {ex.Message}");
+                return false;
+            }
+        }
+
         public static bool TryWriteInt16(IInstance instance, string tagName, short value, CoSimulationPlcSimAdv.App app, string context)
         {
             try
@@ -226,6 +258,38 @@ namespace CoSimulationPlcSimAdv
                 }
 
                 LogOnce(app, LoggedFailures, tagName, $"{context} failed for {tagName}: {symbolicEx.Message}{FormatFallback(markerEx)}");
+                return false;
+            }
+        }
+
+        public static bool TryWriteReal(IInstance instance, string tagName, float value, CoSimulationPlcSimAdv.App app, string context)
+        {
+            try
+            {
+                instance.WriteFloat(tagName, value);
+                ClearLogState(tagName);
+                return true;
+            }
+            catch (SimulationRuntimeException ex)
+            {
+                LogOnce(app, LoggedFailures, tagName, $"{context} failed for {tagName}: {ex.Message}");
+                return false;
+            }
+        }
+
+        public static bool TryReadReal(IInstance instance, string tagName, out float value, CoSimulationPlcSimAdv.App app, string context)
+        {
+            value = 0;
+
+            try
+            {
+                value = instance.ReadFloat(tagName);
+                ClearLogState(tagName);
+                return true;
+            }
+            catch (SimulationRuntimeException ex)
+            {
+                LogOnce(app, LoggedFailures, tagName, $"{context} failed for {tagName}: {ex.Message}");
                 return false;
             }
         }

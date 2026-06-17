@@ -164,6 +164,84 @@ namespace CoSimulationPlcSimAdv.Models
             });
         }
 
+        public void WriteCommissioningBool(string tagName, bool value)
+        {
+            ExecuteOnWorker(() =>
+            {
+                ConnectOrReconnectInterface();
+                updateTags(instance);
+                updateTagsForCommissioningDb(instance, tagName);
+                if (!PlcIo.TryWriteSymbolicBool(instance, tagName, value, App, "Commissioning DB bool write"))
+                {
+                    LogCommissioningTagHints(tagName);
+                    throw new InvalidOperationException($"Unable to write {tagName}.");
+                }
+            });
+        }
+
+        public bool DiagnosticWriteReadCommissioningBool(string tagName, bool value)
+        {
+            return ExecuteOnWorker(() =>
+            {
+                ConnectOrReconnectInterface();
+                updateTags(instance);
+                updateTagsForCommissioningDb(instance, tagName);
+                if (!PlcIo.TryWriteSymbolicBool(instance, tagName, value, App, "Diagnostic commissioning bool write"))
+                {
+                    LogCommissioningTagHints(tagName);
+                    throw new InvalidOperationException($"Unable to write {tagName}.");
+                }
+
+                bool result;
+                if (!PlcIo.TryReadSymbolicBool(instance, tagName, out result, App, "Diagnostic commissioning bool read"))
+                {
+                    LogCommissioningTagHints(tagName);
+                    throw new InvalidOperationException($"Unable to read {tagName}.");
+                }
+
+                return result;
+            });
+        }
+
+        public void WriteCommissioningReal(string tagName, float value)
+        {
+            ExecuteOnWorker(() =>
+            {
+                ConnectOrReconnectInterface();
+                updateTags(instance);
+                updateTagsForCommissioningDb(instance, tagName);
+                if (!PlcIo.TryWriteReal(instance, tagName, value, App, "Commissioning DB real write"))
+                {
+                    LogCommissioningTagHints(tagName);
+                    throw new InvalidOperationException($"Unable to write {tagName}.");
+                }
+            });
+        }
+
+        public float DiagnosticWriteReadReal(string tagName, float value)
+        {
+            return ExecuteOnWorker(() =>
+            {
+                ConnectOrReconnectInterface();
+                updateTags(instance);
+                updateTagsForCommissioningDb(instance, tagName);
+                if (!PlcIo.TryWriteReal(instance, tagName, value, App, "Diagnostic real write"))
+                {
+                    LogCommissioningTagHints(tagName);
+                    throw new InvalidOperationException($"Unable to write {tagName}.");
+                }
+
+                float result;
+                if (!PlcIo.TryReadReal(instance, tagName, out result, App, "Diagnostic real read"))
+                {
+                    LogCommissioningTagHints(tagName);
+                    throw new InvalidOperationException($"Unable to read {tagName}.");
+                }
+
+                return result;
+            });
+        }
+
         public void Dispose()
         {
             if (disposed)
@@ -351,6 +429,91 @@ namespace CoSimulationPlcSimAdv.Models
             {
                 App?.LogStatus($"Tag list update failed: {simEx.Message}");
             }
+        }
+
+        private void updateTagsForCommissioningDb(IInstance in_Sender, string tagName)
+        {
+            var dbName = ExtractDbName(tagName);
+            if (string.IsNullOrWhiteSpace(dbName))
+            {
+                return;
+            }
+
+            try
+            {
+                in_Sender.UpdateTagList(ETagListDetails.IOMCTDB, false, "\"" + dbName + "\"");
+                IsUpToDate = true;
+            }
+            catch (SimulationRuntimeException simEx)
+            {
+                App?.LogStatus($"Commissioning DB tag list update failed for {dbName}: {simEx.Message}");
+            }
+        }
+
+        private void LogCommissioningTagHints(string tagName)
+        {
+            try
+            {
+                var memberName = ExtractMemberName(tagName);
+                if (string.IsNullOrWhiteSpace(memberName) || instance?.TagInfos == null)
+                {
+                    return;
+                }
+
+                var matches = instance.TagInfos
+                    .Where(tag => !string.IsNullOrWhiteSpace(tag.Name)
+                        && tag.Name.IndexOf(memberName, StringComparison.OrdinalIgnoreCase) >= 0)
+                    .Select(tag => tag.Name)
+                    .Distinct()
+                    .Take(8)
+                    .ToList();
+
+                if (matches.Count > 0)
+                {
+                    App?.LogStatus("PLCSIM tag-list names matching " + memberName + ": " + string.Join(", ", matches));
+                }
+                else
+                {
+                    App?.LogStatus("PLCSIM tag list contains no names matching " + memberName + ".");
+                }
+            }
+            catch (Exception ex)
+            {
+                App?.LogStatus($"Commissioning DB tag hint lookup failed: {ex.Message}");
+            }
+        }
+
+        private static string ExtractDbName(string tagName)
+        {
+            if (string.IsNullOrWhiteSpace(tagName))
+            {
+                return null;
+            }
+
+            if (tagName.StartsWith("\"", StringComparison.Ordinal))
+            {
+                var endQuote = tagName.IndexOf('"', 1);
+                return endQuote > 1 ? tagName.Substring(1, endQuote - 1) : null;
+            }
+
+            var dotIndex = tagName.IndexOf('.');
+            return dotIndex > 0 ? tagName.Substring(0, dotIndex) : null;
+        }
+
+        private static string ExtractMemberName(string tagName)
+        {
+            if (string.IsNullOrWhiteSpace(tagName))
+            {
+                return null;
+            }
+
+            var dotIndex = tagName.LastIndexOf('.');
+            if (dotIndex < 0 || dotIndex >= tagName.Length - 1)
+            {
+                return tagName;
+            }
+
+            return tagName.Substring(dotIndex + 1).Trim('"');
         }
 
         private void EnsureFreshLoopConnection()

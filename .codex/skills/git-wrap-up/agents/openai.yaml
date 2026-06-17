@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Wrap Up"
+  short_description: "Commit safely and provide push command"
+  default_prompt: "Use $git-wrap-up to inspect the branch and diff, ensure CHANGELOG.md is final, commit the completed work, and provide the push command."
