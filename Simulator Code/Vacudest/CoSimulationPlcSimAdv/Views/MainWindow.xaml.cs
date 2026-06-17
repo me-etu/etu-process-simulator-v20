@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CoSimulationPlcSimAdv.Models;
+using CoSimulationPlcSimAdv.ViewModels;
 using Siemens.Simatic.Simulation.Runtime;
 using Microsoft.VisualBasic;
 using System.Globalization;
@@ -77,16 +78,59 @@ namespace CoSimulationPlcSimAdv.Views
         private void ShowUnit(string unitKey)
         {
             var showAll = unitKey.Equals("All", StringComparison.OrdinalIgnoreCase);
+            var showCommissioningDb = unitKey.Equals("CommissioningDb", StringComparison.OrdinalIgnoreCase);
             BaseUnitPanel.Visibility = showAll || unitKey.Equals("Base", StringComparison.OrdinalIgnoreCase)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            CommissioningDbPanel.Visibility = showCommissioningDb
                 ? Visibility.Visible
                 : Visibility.Collapsed;
 
             foreach (var unitPanel in unitPanels)
             {
-                unitPanel.Value.Visibility = showAll || unitPanel.Key.Equals(unitKey, StringComparison.OrdinalIgnoreCase)
+                unitPanel.Value.Visibility = !showCommissioningDb && (showAll || unitPanel.Key.Equals(unitKey, StringComparison.OrdinalIgnoreCase))
                     ? Visibility.Visible
                     : Visibility.Collapsed;
             }
+        }
+
+        private void CommissioningBool_Checked(object sender, RoutedEventArgs e)
+        {
+            WriteCommissioningBool(sender as CheckBox, true);
+        }
+
+        private void CommissioningBool_Unchecked(object sender, RoutedEventArgs e)
+        {
+            WriteCommissioningBool(sender as CheckBox, false);
+        }
+
+        private void CommissioningReal_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter)
+            {
+                return;
+            }
+
+            CommitCommissioningReal(sender as TextBox);
+        }
+
+        private void CommissioningReal_LostFocus(object sender, RoutedEventArgs e)
+        {
+            CommitCommissioningReal(sender as TextBox);
+        }
+
+        private void WriteCommissioningBool(CheckBox checkBox, bool value)
+        {
+            var variable = checkBox?.Tag as CommissioningDbVariable;
+            var viewModel = DataContext as MainWindowViewModel;
+            viewModel?.WriteCommissioningBool(variable, value);
+        }
+
+        private void CommitCommissioningReal(TextBox textBox)
+        {
+            var variable = textBox?.Tag as CommissioningDbVariable;
+            var viewModel = DataContext as MainWindowViewModel;
+            viewModel?.WriteCommissioningReal(variable, textBox?.Text);
         }
 
         private void BuildConfiguredUnitPanels()

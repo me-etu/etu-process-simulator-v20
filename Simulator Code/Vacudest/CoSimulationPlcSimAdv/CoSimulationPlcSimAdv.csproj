@@ -156,6 +156,7 @@
     <Compile Include="Timer.cs" />
     <Compile Include="Digital.cs" />
     <Compile Include="PlcIo.cs" />
+    <Compile Include="Models\CommissioningDbConfig.cs" />
     <Compile Include="Models\DeviceUiConfig.cs" />
     <Compile Include="Models\PLCInstance.cs" />
     <Compile Include="Analog.cs" />

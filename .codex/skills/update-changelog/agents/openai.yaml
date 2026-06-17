@@ -1,0 +1,4 @@
+interface:
+  display_name: "Update Changelog"
+  short_description: "Write dated, specific changelog entries"
+  default_prompt: "Use $update-changelog to update CHANGELOG.md with dated sections, touched files, validation, and notes."
