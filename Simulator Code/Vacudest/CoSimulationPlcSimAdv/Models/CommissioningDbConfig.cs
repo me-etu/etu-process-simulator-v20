@@ -41,6 +41,10 @@ namespace CoSimulationPlcSimAdv.Models
             @"^\s*(?<name>[A-Za-z_][A-Za-z0-9_]*)\s*(\{.*?\})?\s*:\s*(?<type>[A-Za-z][A-Za-z0-9_]*)\s*;",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+        private static readonly Regex StructPattern = new Regex(
+            @"^\s*(?<name>[A-Za-z_][A-Za-z0-9_]*)\s*(\{.*?\})?\s*:\s*Struct\b",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         public static List<CommissioningDbConfig> LoadConfigs()
         {
             var configDirectory = ResolveConfigDirectory();
@@ -96,27 +100,39 @@ namespace CoSimulationPlcSimAdv.Models
             return GetDiagnosticTags(configs, "Real");
         }
 
+        public static IEnumerable<string> GetIntDiagnosticTags(IEnumerable<CommissioningDbConfig> configs)
+        {
+            return configs
+                .Where(config => config != null)
+                .SelectMany(config => config.variables ?? new List<CommissioningDbVariable>())
+                .Where(variable => variable != null && IsIntDataType(variable.dataType))
+                .Select(variable => variable.plcTag);
+        }
+
         private static CommissioningDbImportResult Parse(IEnumerable<string> lines)
         {
             string dbName = null;
             var inVarBlock = false;
+            var structPath = new List<string>();
             var variables = new List<CommissioningDbVariable>();
             var skippedLines = new List<string>();
 
-            foreach (var line in lines)
+            foreach (var rawLine in lines)
             {
                 if (dbName == null)
                 {
-                    var dbMatch = DbNamePattern.Match(line);
+                    var dbMatch = DbNamePattern.Match(rawLine);
                     if (dbMatch.Success)
                     {
                         dbName = dbMatch.Groups["name"].Value;
                     }
                 }
 
+                var line = StripLineComment(rawLine).Trim();
+
                 if (!inVarBlock)
                 {
-                    if (line.Trim().Equals("VAR", StringComparison.OrdinalIgnoreCase))
+                    if (line.Equals("VAR", StringComparison.OrdinalIgnoreCase))
                     {
                         inVarBlock = true;
                     }
@@ -124,8 +140,13 @@ namespace CoSimulationPlcSimAdv.Models
                     continue;
                 }
 
-                if (line.Trim().Equals("END_VAR", StringComparison.OrdinalIgnoreCase))
+                if (IsEndVar(line))
                 {
+                    if (structPath.Count > 0)
+                    {
+                        skippedLines.Add("Unclosed struct path before END_VAR: " + string.Join(".", structPath));
+                    }
+
                     break;
                 }
 
@@ -134,17 +155,36 @@ namespace CoSimulationPlcSimAdv.Models
                     continue;
                 }
 
+                if (IsEndStruct(line))
+                {
+                    if (structPath.Count == 0)
+                    {
+                        skippedLines.Add("Unsupported declaration: " + rawLine.Trim());
+                        continue;
+                    }
+
+                    structPath.RemoveAt(structPath.Count - 1);
+                    continue;
+                }
+
+                var structMatch = StructPattern.Match(line);
+                if (structMatch.Success)
+                {
+                    structPath.Add(structMatch.Groups["name"].Value);
+                    continue;
+                }
+
                 var variableMatch = VariablePattern.Match(line);
                 if (!variableMatch.Success)
                 {
-                    skippedLines.Add("Unsupported declaration: " + line.Trim());
+                    skippedLines.Add("Unsupported declaration: " + rawLine.Trim());
                     continue;
                 }
 
                 var dataType = variableMatch.Groups["type"].Value;
                 if (!IsSupportedDataType(dataType))
                 {
-                    skippedLines.Add("Skipped " + variableMatch.Groups["name"].Value + ": unsupported type " + dataType);
+                    skippedLines.Add("Skipped " + FormatMemberPath(structPath, variableMatch.Groups["name"].Value) + ": unsupported type " + dataType);
                     continue;
                 }
 
@@ -154,11 +194,12 @@ namespace CoSimulationPlcSimAdv.Models
                 }
 
                 var memberName = variableMatch.Groups["name"].Value;
+                var memberPath = FormatMemberPath(structPath, memberName);
                 variables.Add(new CommissioningDbVariable
                 {
-                    uiId = ToUiId(dbName + "_" + memberName),
-                    displayName = memberName,
-                    plcTag = FormatPlcTag(dbName, memberName),
+                    uiId = ToUiId(dbName + "_" + memberPath),
+                    displayName = memberPath,
+                    plcTag = FormatPlcTag(dbName, memberPath),
                     dataType = NormalizeDataType(dataType),
                     defaultValue = 0
                 });
@@ -171,7 +212,7 @@ namespace CoSimulationPlcSimAdv.Models
 
             if (variables.Count == 0)
             {
-                throw new InvalidOperationException("Import failed: no supported top-level Bool or Real variables were found.");
+                throw new InvalidOperationException("Import failed: no supported Bool, Real, or Int variables were found.");
             }
 
             return new CommissioningDbImportResult
@@ -222,17 +263,56 @@ namespace CoSimulationPlcSimAdv.Models
         {
             return dataType != null
                 && (dataType.Equals("Bool", StringComparison.OrdinalIgnoreCase)
-                    || dataType.Equals("Real", StringComparison.OrdinalIgnoreCase));
+                    || dataType.Equals("Real", StringComparison.OrdinalIgnoreCase)
+                    || IsIntDataType(dataType));
         }
 
         private static string NormalizeDataType(string dataType)
         {
-            return dataType.Equals("Bool", StringComparison.OrdinalIgnoreCase) ? "Bool" : "Real";
+            if (dataType.Equals("Bool", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Bool";
+            }
+
+            return IsIntDataType(dataType) ? "Int" : "Real";
         }
 
         private static string FormatPlcTag(string dbName, string memberName)
         {
             return dbName + "." + memberName;
+        }
+
+        private static string FormatMemberPath(IEnumerable<string> structPath, string memberName)
+        {
+            return string.Join(".", structPath.Concat(new[] { memberName }));
+        }
+
+        private static bool IsIntDataType(string dataType)
+        {
+            return dataType != null
+                && (dataType.Equals("Int", StringComparison.OrdinalIgnoreCase)
+                    || dataType.Equals("Int16", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsEndVar(string line)
+        {
+            return TrimTrailingSemicolon(line).Equals("END_VAR", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsEndStruct(string line)
+        {
+            return TrimTrailingSemicolon(line).Equals("END_STRUCT", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string TrimTrailingSemicolon(string line)
+        {
+            return (line ?? string.Empty).Trim().TrimEnd(';').Trim();
+        }
+
+        private static string StripLineComment(string line)
+        {
+            var index = (line ?? string.Empty).IndexOf("//", StringComparison.Ordinal);
+            return index >= 0 ? line.Substring(0, index) : line;
         }
 
         private static string ResolveConfigDirectory()

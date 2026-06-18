@@ -228,40 +228,58 @@
                                 <DataTemplate>
                                     <StackPanel Margin="0,0,0,18">
                                         <TextBlock Text="{Binding dbName}" Foreground="White" FontWeight="Bold" FontSize="14" Margin="0,0,0,6"/>
-                                        <ItemsControl ItemsSource="{Binding variables}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <WrapPanel/>
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
+                                        <ItemsControl ItemsSource="{Binding groups}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <StackPanel Width="220" Margin="0,0,8,8">
-                                                        <TextBlock Text="{Binding plcTag}" Foreground="White" FontSize="11"/>
-                                                        <CheckBox Content="{Binding displayName}" Tag="{Binding}" Foreground="White" Checked="CommissioningBool_Checked" Unchecked="CommissioningBool_Unchecked">
-                                                            <CheckBox.Style>
-                                                                <Style TargetType="{x:Type CheckBox}">
-                                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding dataType}" Value="Bool">
-                                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </CheckBox.Style>
-                                                        </CheckBox>
-                                                        <TextBox Text="{Binding defaultValue}" Tag="{Binding}" Height="22" KeyDown="CommissioningReal_KeyDown" LostFocus="CommissioningReal_LostFocus">
-                                                            <TextBox.Style>
-                                                                <Style TargetType="{x:Type TextBox}">
-                                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding dataType}" Value="Real">
-                                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBox.Style>
-                                                        </TextBox>
+                                                    <StackPanel Margin="0,4,0,10">
+                                                        <TextBlock Text="{Binding groupName}" Foreground="White" FontWeight="Bold" FontSize="12" Margin="0,0,0,4"/>
+                                                        <ItemsControl ItemsSource="{Binding variables}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Grid Margin="0,0,0,3" ToolTip="{Binding plcTag}">
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="260"/>
+                                                                            <ColumnDefinition Width="135"/>
+                                                                            <ColumnDefinition Width="48"/>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <TextBlock Grid.Column="0" Text="{Binding leafName}" Foreground="White" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                                                        <CheckBox Grid.Column="1" Tag="{Binding variable}" VerticalAlignment="Center" Checked="CommissioningBool_Checked" Unchecked="CommissioningBool_Unchecked">
+                                                                            <CheckBox.Style>
+                                                                                <Style TargetType="{x:Type CheckBox}">
+                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding dataType}" Value="Bool">
+                                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </CheckBox.Style>
+                                                                        </CheckBox>
+                                                                        <TextBox Grid.Column="1" Text="{Binding variable.defaultValue}" Tag="{Binding variable}" Height="22" KeyDown="CommissioningReal_KeyDown" LostFocus="CommissioningReal_LostFocus" Margin="0,0,8,0">
+                                                                            <TextBox.Style>
+                                                                                <Style TargetType="{x:Type TextBox}">
+                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                    <Style.Triggers>
+                                                                                        <DataTrigger Binding="{Binding dataType}" Value="Real">
+                                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                                        </DataTrigger>
+                                                                                        <DataTrigger Binding="{Binding dataType}" Value="Int">
+                                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                                        </DataTrigger>
+                                                                                        <DataTrigger Binding="{Binding dataType}" Value="Int16">
+                                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                                        </DataTrigger>
+                                                                                    </Style.Triggers>
+                                                                                </Style>
+                                                                            </TextBox.Style>
+                                                                        </TextBox>
+                                                                        <TextBlock Grid.Column="2" Text="{Binding dataType}" Foreground="White" Opacity="0.82" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                                        <TextBlock Grid.Column="3" Text="{Binding plcTag}" Foreground="White" Opacity="0.68" FontSize="11" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                                    </Grid>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
                                                     </StackPanel>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>

@@ -262,6 +262,38 @@ namespace CoSimulationPlcSimAdv
             }
         }
 
+        public static bool TryWriteSymbolicInt16(IInstance instance, string tagName, short value, CoSimulationPlcSimAdv.App app, string context)
+        {
+            try
+            {
+                instance.WriteInt16(tagName, value);
+                ClearLogState(tagName);
+                return true;
+            }
+            catch (SimulationRuntimeException ex)
+            {
+                LogOnce(app, LoggedFailures, tagName, $"{context} failed for {tagName}: {ex.Message}");
+                return false;
+            }
+        }
+
+        public static bool TryReadSymbolicInt16(IInstance instance, string tagName, out short value, CoSimulationPlcSimAdv.App app, string context)
+        {
+            value = 0;
+
+            try
+            {
+                value = instance.ReadInt16(tagName);
+                ClearLogState(tagName);
+                return true;
+            }
+            catch (SimulationRuntimeException ex)
+            {
+                LogOnce(app, LoggedFailures, tagName, $"{context} failed for {tagName}: {ex.Message}");
+                return false;
+            }
+        }
+
         public static bool TryWriteReal(IInstance instance, string tagName, float value, CoSimulationPlcSimAdv.App app, string context)
         {
             try

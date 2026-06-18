@@ -2,6 +2,50 @@
 
 Internal tracker for meaningful simulator changes, setup notes, and maintenance decisions.
 
+## 2026-06-18 - SPEC#003 Commissioning DB Struct Import
+
+### Added
+
+- Added stack-based parsing for inline `Struct ... END_STRUCT` blocks in TIA `.db` source imports.
+- Added flattened commissioning DB member paths such as `BL170.rawWaterSourceTank.tankId` for UI labels and PLCSIM write tags.
+- Added Siemens `Int` import support, shown with numeric text entries and written through PLCSIM `Int16` APIs.
+- Added commissioning DB Int tags to the asynchronous `TEST IO` diagnostic audit and progress counter.
+- Added grouped Commissioning DB display rows for structured imports.
+
+### Changed
+
+- Kept generated commissioning DB config types close to TIA source declarations by storing imported integers as `Int` and mapping them to Int16 only at runtime.
+- Reused the existing commissioning DB numeric textbox path for both Real and Int values, with type-aware commit logic.
+- Changed Git hygiene for project-specific TIA DB exports so `references/*.db` files stay local.
+- Changed the Commissioning DB panel from flat wrapped variable tiles to grouped compact rows with leaf-name labels and full PLC tag tooltips.
+
+### Fixed
+
+- Fixed realistic structured commissioning DB exports being skipped as unsupported top-level-only declarations.
+- Fixed nested commissioning DB Bool, Real, and Int leaves so they can be imported and addressed with their full member path.
+
+### Files
+
+- `Specs/SPEC#003-commissioning-db-struct-import.md`
+- `.gitignore`
+- `Simulator Code/Vacudest/CoSimulationPlcSimAdv/Configs/CommissioningDb_dbIBN.json`
+- `Simulator Code/Vacudest/CoSimulationPlcSimAdv/Models/CommissioningDbConfig.cs`
+- `Simulator Code/Vacudest/CoSimulationPlcSimAdv/Models/PLCInstance.cs`
+- `Simulator Code/Vacudest/CoSimulationPlcSimAdv/PlcIo.cs`
+- `Simulator Code/Vacudest/CoSimulationPlcSimAdv/ViewModels/MainWindowViewModel.cs`
+- `Simulator Code/Vacudest/CoSimulationPlcSimAdv/Views/MainWindow.xaml`
+- `Simulator Code/Vacudest/CoSimulationPlcSimAdv/Views/MainWindow.xaml.cs`
+- `CHANGELOG.md`
+- `skills.md`
+
+### Validation
+
+- `& "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" "Simulator Code\Vacudest\CoSimulationPlcSimAdv\CoSimulationPlcSimAdv.csproj" /t:Build /p:Configuration=Debug /p:Platform=x64`: passed with 0 errors and 2 pre-existing `Simulation.cs` warnings.
+
+### Notes
+
+- `references/dbIBN_withStructs.db` was used as the realistic target fixture for SPEC#003 but remains project-specific reference material unless explicitly chosen for tracking.
+
 ## 2026-06-17 - Repo Workflow And Simulator UI Setup
 
 ### Added

@@ -15,6 +15,26 @@ using Siemens.Simatic.Simulation.Runtime;
 
 namespace CoSimulationPlcSimAdv.ViewModels
 {
+    public class CommissioningDbDisplayConfig
+    {
+        public string dbName { get; set; }
+        public List<CommissioningDbDisplayGroup> groups { get; set; }
+    }
+
+    public class CommissioningDbDisplayGroup
+    {
+        public string groupName { get; set; }
+        public List<CommissioningDbDisplayVariable> variables { get; set; }
+    }
+
+    public class CommissioningDbDisplayVariable
+    {
+        public CommissioningDbVariable variable { get; set; }
+        public string leafName { get; set; }
+        public string dataType { get; set; }
+        public string plcTag { get; set; }
+    }
+
     public class MainWindowViewModel : ViewModelBase
     {
         public PLCInstance virtualController = null;
@@ -34,8 +54,8 @@ namespace CoSimulationPlcSimAdv.ViewModels
             }
         }
 
-        private ObservableCollection<CommissioningDbConfig> commissioningDbConfigs;
-        public ObservableCollection<CommissioningDbConfig> CommissioningDbConfigs
+        private ObservableCollection<CommissioningDbDisplayConfig> commissioningDbConfigs;
+        public ObservableCollection<CommissioningDbDisplayConfig> CommissioningDbConfigs
         {
             get { return commissioningDbConfigs; }
             set
@@ -428,15 +448,18 @@ namespace CoSimulationPlcSimAdv.ViewModels
             };
             analogTags.AddRange(DeviceUiConfigLoader.GetConfiguredInt16DiagnosticTags(units));
             var commissioningRealTags = CommissioningDbConfigLoader.GetRealDiagnosticTags(commissioningConfigs).ToList();
+            var commissioningIntTags = CommissioningDbConfigLoader.GetIntDiagnosticTags(commissioningConfigs).ToList();
 
             var distinctDigitalTags = digitalTags.Where(tag => !string.IsNullOrWhiteSpace(tag)).Distinct().ToList();
             var distinctCommissioningBoolTags = commissioningBoolTags.Where(tag => !string.IsNullOrWhiteSpace(tag)).Distinct().ToList();
             var distinctAnalogTags = analogTags.Where(tag => !string.IsNullOrWhiteSpace(tag)).Distinct().ToList();
             var distinctCommissioningRealTags = commissioningRealTags.Where(tag => !string.IsNullOrWhiteSpace(tag)).Distinct().ToList();
+            var distinctCommissioningIntTags = commissioningIntTags.Where(tag => !string.IsNullOrWhiteSpace(tag)).Distinct().ToList();
             var totalTagCount = distinctDigitalTags.Count
                 + distinctCommissioningBoolTags.Count
                 + distinctAnalogTags.Count
-                + distinctCommissioningRealTags.Count;
+                + distinctCommissioningRealTags.Count
+                + distinctCommissioningIntTags.Count;
             var completedTagCount = 0;
 
             SetDiagnosticProgress(0, Math.Max(totalTagCount, 1), "Preparing IO audit...");
@@ -526,6 +549,26 @@ namespace CoSimulationPlcSimAdv.ViewModels
                 SetDiagnosticProgress(completedTagCount, totalTagCount, FormatDiagnosticProgress("Commissioning DB Real tags", completedTagCount, totalTagCount, tag));
             }
 
+            report.AppendLine();
+            report.AppendLine("Commissioning DB Int tags:");
+
+            foreach (var tag in distinctCommissioningIntTags)
+            {
+                try
+                {
+                    var testResult = virtualController.DiagnosticWriteReadCommissioningInt16(tag, 1234);
+                    var resetResult = virtualController.DiagnosticWriteReadCommissioningInt16(tag, 0);
+                    report.AppendLine($"OK   {tag} -> TEST:{testResult} RESET:{resetResult}");
+                }
+                catch (Exception ex)
+                {
+                    report.AppendLine($"FAIL {tag} -> {ex.Message}");
+                }
+
+                completedTagCount++;
+                SetDiagnosticProgress(completedTagCount, totalTagCount, FormatDiagnosticProgress("Commissioning DB Int tags", completedTagCount, totalTagCount, tag));
+            }
+
             return report.ToString();
         }
 
@@ -587,6 +630,49 @@ namespace CoSimulationPlcSimAdv.ViewModels
             }
         }
 
+        public void WriteCommissioningNumber(CommissioningDbVariable variable, string textValue)
+        {
+            if (variable == null || string.IsNullOrWhiteSpace(variable.plcTag))
+            {
+                return;
+            }
+
+            if (IsCommissioningInt(variable))
+            {
+                WriteCommissioningInt(variable, textValue);
+                return;
+            }
+
+            WriteCommissioningReal(variable, textValue);
+        }
+
+        private void WriteCommissioningInt(CommissioningDbVariable variable, string textValue)
+        {
+            short value;
+            if (!short.TryParse(textValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+            {
+                WriteStatusEntry("Commissioning DB int value is invalid for " + variable.plcTag + ": " + textValue);
+                return;
+            }
+
+            try
+            {
+                virtualController.WriteCommissioningInt16(variable.plcTag, value);
+                WriteStatusEntry("Commissioning DB wrote " + variable.plcTag + " = " + value.ToString(CultureInfo.InvariantCulture));
+            }
+            catch (Exception ex)
+            {
+                WriteStatusEntry("Commissioning DB int write failed for " + variable.plcTag + ": " + ex.Message);
+            }
+        }
+
+        private static bool IsCommissioningInt(CommissioningDbVariable variable)
+        {
+            return variable != null
+                && (string.Equals(variable.dataType, "Int", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(variable.dataType, "Int16", StringComparison.OrdinalIgnoreCase));
+        }
+
         public void ExitApplication()
         {
             Application.Current.Shutdown();
@@ -635,7 +721,63 @@ namespace CoSimulationPlcSimAdv.ViewModels
 
         private void ReloadCommissioningDbConfigs()
         {
-            CommissioningDbConfigs = new ObservableCollection<CommissioningDbConfig>(CommissioningDbConfigLoader.LoadConfigs());
+            CommissioningDbConfigs = new ObservableCollection<CommissioningDbDisplayConfig>(
+                CommissioningDbConfigLoader.LoadConfigs().Select(BuildCommissioningDbDisplayConfig));
+        }
+
+        private static CommissioningDbDisplayConfig BuildCommissioningDbDisplayConfig(CommissioningDbConfig config)
+        {
+            var displayVariables = (config.variables ?? new List<CommissioningDbVariable>())
+                .Where(variable => variable != null)
+                .Select(CreateDisplayVariable)
+                .ToList();
+
+            var groups = displayVariables
+                .GroupBy(variable => GetGroupName(variable.variable?.displayName), StringComparer.OrdinalIgnoreCase)
+                .OrderBy(group => group.Key.Equals("Top level", StringComparison.OrdinalIgnoreCase) ? 0 : 1)
+                .ThenBy(group => group.Key, StringComparer.OrdinalIgnoreCase)
+                .Select(group => new CommissioningDbDisplayGroup
+                {
+                    groupName = group.Key,
+                    variables = group.OrderBy(variable => variable.leafName, StringComparer.OrdinalIgnoreCase).ToList()
+                })
+                .ToList();
+
+            return new CommissioningDbDisplayConfig
+            {
+                dbName = config.dbName,
+                groups = groups
+            };
+        }
+
+        private static CommissioningDbDisplayVariable CreateDisplayVariable(CommissioningDbVariable variable)
+        {
+            return new CommissioningDbDisplayVariable
+            {
+                variable = variable,
+                leafName = GetLeafName(variable.displayName),
+                dataType = variable.dataType,
+                plcTag = variable.plcTag
+            };
+        }
+
+        private static string GetGroupName(string displayName)
+        {
+            var index = (displayName ?? string.Empty).LastIndexOf('.');
+            return index > 0 ? displayName.Substring(0, index) : "Top level";
+        }
+
+        private static string GetLeafName(string displayName)
+        {
+            if (string.IsNullOrWhiteSpace(displayName))
+            {
+                return string.Empty;
+            }
+
+            var index = displayName.LastIndexOf('.');
+            return index >= 0 && index < displayName.Length - 1
+                ? displayName.Substring(index + 1)
+                : displayName;
         }
 
         private bool IsInstanceNotNull()
