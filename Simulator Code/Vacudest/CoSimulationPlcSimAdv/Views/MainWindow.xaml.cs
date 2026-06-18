@@ -130,7 +130,7 @@ namespace CoSimulationPlcSimAdv.Views
         {
             var variable = textBox?.Tag as CommissioningDbVariable;
             var viewModel = DataContext as MainWindowViewModel;
-            viewModel?.WriteCommissioningReal(variable, textBox?.Text);
+            viewModel?.WriteCommissioningNumber(variable, textBox?.Text);
         }
 
         private void BuildConfiguredUnitPanels()

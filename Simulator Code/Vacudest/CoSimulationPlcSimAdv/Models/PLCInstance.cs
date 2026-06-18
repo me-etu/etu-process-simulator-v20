@@ -218,6 +218,45 @@ namespace CoSimulationPlcSimAdv.Models
             });
         }
 
+        public void WriteCommissioningInt16(string tagName, short value)
+        {
+            ExecuteOnWorker(() =>
+            {
+                ConnectOrReconnectInterface();
+                updateTags(instance);
+                updateTagsForCommissioningDb(instance, tagName);
+                if (!PlcIo.TryWriteSymbolicInt16(instance, tagName, value, App, "Commissioning DB int write"))
+                {
+                    LogCommissioningTagHints(tagName);
+                    throw new InvalidOperationException($"Unable to write {tagName}.");
+                }
+            });
+        }
+
+        public short DiagnosticWriteReadCommissioningInt16(string tagName, short value)
+        {
+            return ExecuteOnWorker(() =>
+            {
+                ConnectOrReconnectInterface();
+                updateTags(instance);
+                updateTagsForCommissioningDb(instance, tagName);
+                if (!PlcIo.TryWriteSymbolicInt16(instance, tagName, value, App, "Diagnostic commissioning int write"))
+                {
+                    LogCommissioningTagHints(tagName);
+                    throw new InvalidOperationException($"Unable to write {tagName}.");
+                }
+
+                short result;
+                if (!PlcIo.TryReadSymbolicInt16(instance, tagName, out result, App, "Diagnostic commissioning int read"))
+                {
+                    LogCommissioningTagHints(tagName);
+                    throw new InvalidOperationException($"Unable to read {tagName}.");
+                }
+
+                return result;
+            });
+        }
+
         public float DiagnosticWriteReadReal(string tagName, float value)
         {
             return ExecuteOnWorker(() =>

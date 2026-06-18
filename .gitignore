@@ -8,5 +8,5 @@
 # Archive
 **/Archive
 
-# Externals
-**/references/dbIBN.db
+# Project-specific TIA DB exports
+**/references/*.db
