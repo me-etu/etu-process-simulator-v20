@@ -27,6 +27,14 @@ Before staging:
 3. If the changelog is missing, stale, or generic, use the `update-changelog` workflow first.
 4. Do not commit until the changelog is ready or the user explicitly says to commit without it.
 
+
+## skills.md Memory Gate
+
+Before staging:
+
+1. Check whether `skills.md` has a summary of any valuable key learnings from this session
+2. The entry should be a memory feed for future agent session
+
 ## Validation Gate
 
 Confirm the task's required validation was run:
